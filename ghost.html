@@ -1,0 +1,286 @@
+<style>
+#result{
+height:100vh;
+width:100vw;
+}
+</style>
+<iframe id="result" srcdoc="
+<!DOCTYPE html>
+<html lang=&quot;en&quot; >
+
+<head>
+
+  <meta charset=&quot;UTF-8&quot;>
+  
+  
+  
+<style>
+html,
+body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #161616;
+  pointer-events: none;
+}
+
+.ghost {
+  position: absolute;
+  z-index: 1;
+  -webkit-transform-origin: center;
+          transform-origin: center;
+  width: 90px;
+  margin: 20px 0 0 -45px;
+}
+.ghost__eyes, .ghost__mouth {
+  position: absolute;
+  z-index: 1;
+  width: 15px;
+  height: 15px;
+  top: 34px;
+  left: 50%;
+  -webkit-transform: translate(-50%);
+          transform: translate(-50%);
+  border-radius: 50px;
+  background: #161616;
+  margin-left: -20px;
+  -webkit-transform-origin: center;
+          transform-origin: center;
+}
+.ghost__eyes {
+  box-shadow: 40px 0 0 #161616;
+}
+.ghost__mouth {
+  margin: 0;
+  top: 60px;
+  -webkit-transform: scale(0);
+          transform: scale(0);
+  border-radius: 20px 20px 12px 12px;
+  width: 20px;
+  trasform-origin: center bottom;
+  overflow: hidden;
+}
+.ghost__tail {
+  position: absolute;
+  z-index: -1;
+  top: 82px;
+  height: 55px;
+  width: 100%;
+  -webkit-filter: url(#goo);
+          filter: url(#goo);
+}
+.ghost__tail:before {
+  content: '';
+  background: #fff;
+  position: absolute;
+  bottom: 35px;
+  left: 0;
+  height: 100px;
+  width: 100%;
+  border-radius: 40px 40px 5px 5px;
+}
+.ghost__rip {
+  width: 15px;
+  height: 28px;
+  background: #fff;
+  position: absolute;
+  top: 15px;
+  left: 0;
+  box-shadow: -62px 0 0 #fff, -31px 0 0 #fff, 31px 0 0 #fff, 62px 0 0 #fff, 93px 0 0 #fff;
+  border-radius: 50%;
+  -webkit-animation: ghost-rips 1.2s linear infinite;
+          animation: ghost-rips 1.2s linear infinite;
+}
+
+@-webkit-keyframes ghost-rips {
+  0% {
+    left: 0;
+    top: 12px;
+  }
+  50% {
+    left: 31px;
+    top: 20px;
+  }
+  100% {
+    left: 62px;
+    top: 12px;
+  }
+}
+
+@keyframes ghost-rips {
+  0% {
+    left: 0;
+    top: 12px;
+  }
+  50% {
+    left: 31px;
+    top: 20px;
+  }
+  100% {
+    left: 62px;
+    top: 12px;
+  }
+}
+</style>
+
+  <script>
+  window.console = window.console || function(t) {};
+</script>
+
+  
+  
+  <script>
+  if (document.location.search.match(/type=embed/gi)) {
+    window.parent.postMessage(&quot;resize&quot;, &quot;*&quot;);
+  }
+</script>
+
+
+</head>
+
+<body translate=&quot;no&quot; >
+  <!--
+
+Follow me on
+Dribbble: https://dribbble.com/supahfunk
+Twitter: https://twitter.com/supahfunk
+Codepen: https://codepen.io/supah/
+
+-->
+
+<div id=&quot;ghost&quot; class=&quot;ghost&quot;>
+  <div class=&quot;ghost__head&quot;>
+    <div class=&quot;ghost__eyes&quot;></div>
+    <div class=&quot;ghost__mouth&quot;></div>
+  </div>
+  <div class=&quot;ghost__tail&quot;>
+    <div class=&quot;ghost__rip&quot;></div>
+  </div>
+</div>
+
+
+<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; version=&quot;1.1&quot;>
+  <defs>
+    <filter id=&quot;goo&quot;>
+      <feGaussianBlur
+        in=&quot;SourceGraphic&quot;
+        stdDeviation=&quot;10&quot;
+        result=&quot;ghost-blur&quot; />
+      <feColorMatrix
+        in=&quot;ghost-blur&quot;
+        mode=&quot;matrix&quot;
+        values=&quot;
+                1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 16 -7&quot;
+        result=&quot;ghost-gooey&quot; />
+    </filter>
+  </defs>
+</svg>
+
+  
+  
+      <script id=&quot;rendered-js&quot; >
+/*--------------------
+Get Mouse
+--------------------*/
+let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2, dir: '' };
+let clicked = false;
+const getMouse = e => {
+  mouse = {
+    x: e.clientX || e.pageX || e.touches[0].pageX || 0 || window.innerWidth / 2,
+    y: e.clientY || e.pageX || e.touches[0].pageY || 0 || window.innerHeight / 2,
+    dir: getMouse.x > e.clientX ? 'left' : 'right' };
+
+};
+['mousemove', 'touchstart', 'touchmove'].forEach(e => {
+  window.addEventListener(e, getMouse);
+});
+window.addEventListener('mousedown', e => {
+  e.preventDefault();
+  clicked = true;
+});
+window.addEventListener('mouseup', () => {
+  clicked = false;
+});
+
+
+/*--------------------
+    Ghost Follow
+    --------------------*/
+class GhostFollow {
+  constructor(options) {
+    Object.assign(this, options);
+
+    this.el = document.querySelector('#ghost');
+    this.mouth = document.querySelector('.ghost__mouth');
+    this.eyes = document.querySelector('.ghost__eyes');
+    this.pos = {
+      x: 0,
+      y: 0 };
+
+  }
+
+  follow() {
+    this.distX = mouse.x - this.pos.x;
+    this.distY = mouse.y - this.pos.y;
+
+    this.velX = this.distX / 8;
+    this.velY = this.distY / 8;
+
+    this.pos.x += this.distX / 10;
+    this.pos.y += this.distY / 10;
+
+    this.skewX = map(this.velX, 0, 100, 0, -50);
+    this.scaleY = map(this.velY, 0, 100, 1, 2.0);
+    this.scaleEyeX = map(Math.abs(this.velX), 0, 100, 1, 1.2);
+    this.scaleEyeY = map(Math.abs(this.velX * 2), 0, 100, 1, 0.1);
+    this.scaleMouth = Math.min(Math.max(map(Math.abs(this.velX * 1.5), 0, 100, 0, 10), map(Math.abs(this.velY * 1.2), 0, 100, 0, 5)), 2);
+
+    if (clicked) {
+      this.scaleEyeY = .4;
+      this.scaleMouth = -this.scaleMouth;
+    }
+
+    this.el.style.transform = 'translate(' + this.pos.x + 'px, ' + this.pos.y + 'px) scale(.7) skew(' + this.skewX + 'deg) rotate(' + -this.skewX + 'deg) scaleY(' + this.scaleY + ')';
+    this.eyes.style.transform = 'translateX(-50%) scale(' + this.scaleEyeX + ',' + this.scaleEyeY + ')';
+    this.mouth.style.transform = 'translate(' + (-this.skewX * .5 - 10) + 'px) scale(' + this.scaleMouth + ')';
+  }}
+
+
+
+/*--------------------
+     Map
+     --------------------*/
+function map(num, in_min, in_max, out_min, out_max) {
+  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+
+/*--------------------
+  Init
+  --------------------*/
+const cursor = new GhostFollow();
+
+
+/*--------------------
+                                  Render
+                                  --------------------*/
+const render = () => {
+  requestAnimationFrame(render);
+  cursor.follow();
+};
+render();
+//# sourceURL=pen.js
+    </script>
+
+  
+
+</body>
+
+</html>
+ 
+" sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation  allow-scripts allow-top-navigation-by-user-activation" allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; microphone; midi; payment; vr" allowTransparency="true" allowpaymentrequest="true" allowfullscreen="true" class="result-iframe">
+      </iframe>
